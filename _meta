@@ -1,0 +1,13 @@
+<package project="Mer:Trunk:Base" name="gmp">
+  <title>The GNU MP Library</title>
+  <description>A library for calculating huge numbers (integer and floating point).
+
+
+
+Authors:
+--------
+    Torbjorn Granlund &lt;tege@zevs.sics.se&gt;
+
+</description>
+  <url>http://gmplib.org/</url>
+</package>
