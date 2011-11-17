@@ -12,6 +12,7 @@ Source0: ftp://ftp.gnu.org/pub/gnu/gmp/gmp-%{version}.tar.bz2
 Source2: gmp.h
 Source3: gmp-mparam.h
 #Patch1: gmp-4.2.4-no-host-target-check.patch
+Patch11: gmp-4.1.4-noexecstack.patch
 License: LGPLv3+
 Group: System/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -56,6 +57,7 @@ in applications.
 %prep
 %setup -q 
 #%patch1 -p1 -b .no-host-target
+%patch11 -p1 -b .mips
 
 %build
 autoreconf -if
@@ -152,6 +154,9 @@ basearch=i386
 # always use arm for arm*
 %ifarch %{arm}
 basearch=arm
+%endif
+%ifarch mipsel
+basearch=mips
 %endif
 # superH architecture support
 %ifarch sh3 sh4

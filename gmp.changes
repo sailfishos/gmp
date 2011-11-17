@@ -1,3 +1,6 @@
+* Thu Nov 17 2011 Carsten Munk <carsten@maemo.org> - 4.3.2
+- Add MIPS support to gmp.h
+
 * Tue Apr 05 2011 Juha Kallioinen <juha.kallioinen@nokia.com> - 4.3.2
 - Update to 4.3.2
 
