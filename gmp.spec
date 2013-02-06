@@ -5,18 +5,18 @@
 
 Summary: A GNU arbitrary precision library
 Name: gmp
-Version: 4.3.2
+Version: 5.1.0
 Release: 6
 URL: http://gmplib.org/
 Source0: ftp://ftp.gnu.org/pub/gnu/gmp/gmp-%{version}.tar.bz2
 Source2: gmp.h
 Source3: gmp-mparam.h
-#Patch1: gmp-4.2.4-no-host-target-check.patch
-Patch11: gmp-4.1.4-noexecstack.patch
+Patch0: arm-binutils-hack.patch
 License: LGPLv3+
 Group: System/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf automake libtool
+Provides: libgmp.so.3
 
 %description
 The gmp package contains GNU MP, a library for arbitrary precision
@@ -56,8 +56,7 @@ in applications.
 
 %prep
 %setup -q 
-#%patch1 -p1 -b .no-host-target
-%patch11 -p1 -b .mips
+%patch0 -p1
 
 %build
 autoreconf -if
@@ -125,21 +124,19 @@ install -m 644 gmp-mparam.h ${RPM_BUILD_ROOT}%{_includedir}
 rm -f $RPM_BUILD_ROOT%{_libdir}/lib{gmp,mp,gmpxx}.la
 rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 /sbin/ldconfig -n $RPM_BUILD_ROOT%{_libdir}
+ln -sf libgmp.so.10 $RPM_BUILD_ROOT%{_libdir}/libgmp.so.3
 ln -sf libgmpxx.so.4 $RPM_BUILD_ROOT%{_libdir}/libgmpxx.so
 cd ..
 %ifarch %{ix86}
 cd build-sse2
 export LD_LIBRARY_PATH=`pwd`/.libs
 mkdir $RPM_BUILD_ROOT%{_libdir}/sse2
-install -m 755 .libs/libgmp.so.3.* $RPM_BUILD_ROOT%{_libdir}/sse2
-cp -a .libs/libgmp.so.3 $RPM_BUILD_ROOT%{_libdir}/sse2
-chmod 755 $RPM_BUILD_ROOT%{_libdir}/sse2/libgmp.so.3
+install -m 755 .libs/libgmp.so.10.* $RPM_BUILD_ROOT%{_libdir}/sse2
+cp -a .libs/libgmp.so.10 $RPM_BUILD_ROOT%{_libdir}/sse2
+chmod 755 $RPM_BUILD_ROOT%{_libdir}/sse2/libgmp.so.10
 install -m 755 .libs/libgmpxx.so.4.* $RPM_BUILD_ROOT%{_libdir}/sse2
 cp -a .libs/libgmpxx.so.4 $RPM_BUILD_ROOT%{_libdir}/sse2
 chmod 755 $RPM_BUILD_ROOT%{_libdir}/sse2/libgmpxx.so.4
-install -m 755 .libs/libmp.so.3.* $RPM_BUILD_ROOT%{_libdir}/sse2
-cp -a .libs/libmp.so.3 $RPM_BUILD_ROOT%{_libdir}/sse2
-chmod 755 $RPM_BUILD_ROOT%{_libdir}/sse2/libmp.so.3
 cd ..
 %endif
 
@@ -171,7 +168,7 @@ install -m644 %{SOURCE3} %{buildroot}/%{_includedir}/gmp-mparam.h
 
 
 %check
-%ifnarch ppc
+%if ! 0%{?qemu_user_space_build} 
 cd base
 export LD_LIBRARY_PATH=`pwd`/.libs
 make %{?_smp_mflags} check
@@ -209,7 +206,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root,-)
 %doc COPYING COPYING.LIB NEWS README
 %{_libdir}/libgmp.so.*
-%{_libdir}/libmp.so.*
 %{_libdir}/libgmpxx.so.*
 %ifarch %{ix86}
 %{_libdir}/sse2/*
@@ -217,7 +213,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files devel
 %defattr(-,root,root,-)
-%{_libdir}/libmp.so
 %{_libdir}/libgmp.so
 %{_libdir}/libgmpxx.so
 %{_includedir}/*.h
@@ -225,7 +220,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files static
 %defattr(-,root,root,-)
-%{_libdir}/libmp.a
 %{_libdir}/libgmp.a
 %{_libdir}/libgmpxx.a
 
