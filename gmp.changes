@@ -1,8 +1,3 @@
-* Wed Feb 06 2013 Carsten Munk <carsten.munk@jollamobile.com> - 5.1.0
-- Update to 5.1.0
-- Disable tests when running under qemu
-- Add binutils hack for ARM
-
 * Thu Nov 17 2011 Carsten Munk <carsten@maemo.org> - 4.3.2
 - Add MIPS support to gmp.h
 
