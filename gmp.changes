@@ -1,3 +1,6 @@
+* Tue Dec 10 2013 Carsten Munk <carsten.munk@jollamobile.com> - 4.3.2
+- Add tscan.patch to make build work with GCC 4.8
+
 * Thu Nov 17 2011 Carsten Munk <carsten@maemo.org> - 4.3.2
 - Add MIPS support to gmp.h
 

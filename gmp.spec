@@ -14,6 +14,7 @@ Source3: gmp-mparam.h
 #Patch1: gmp-4.2.4-no-host-target-check.patch
 Patch11: gmp-4.1.4-noexecstack.patch
 Patch12: arm-binutils-hack.patch
+Patch13: tscan.patch
 License: LGPLv3+
 Group: System/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -60,6 +61,8 @@ in applications.
 #%patch1 -p1 -b .no-host-target
 %patch11 -p1 -b .mips
 %patch12 -p1 -b .arm
+%patch13 -p1 -b .tscan
+
 %build
 autoreconf -if
 if as --help | grep -q execstack; then
