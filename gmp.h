@@ -61,6 +61,8 @@ MA 02111-1307, USA. */
 #include "gmp-sparc.h"
 #elif defined(__mips__)
 #include "gmp-mips.h"
+#elif defined(__aarch64__)
+#include "gmp-aarch64.h"
 #else
 #error "The gmp-devel package is not usable with the architecture."
 #endif

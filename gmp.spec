@@ -175,7 +175,7 @@ install -m644 %{SOURCE3} %{buildroot}/%{_includedir}/gmp-mparam.h
 
 
 %check
-%ifnarch ppc
+%ifnarch aarch64 ppc
 cd base
 export LD_LIBRARY_PATH=`pwd`/.libs
 make %{?_smp_mflags} check
