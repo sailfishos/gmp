@@ -15,6 +15,7 @@ Source3: gmp-mparam.h
 Patch11: gmp-4.1.4-noexecstack.patch
 Patch12: arm-binutils-hack.patch
 Patch13: tscan.patch
+Patch14: disable_am_c_prototypes.patch
 License: LGPLv3+
 Group: System/Libraries
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -62,6 +63,7 @@ in applications.
 %patch11 -p1 -b .mips
 %patch12 -p1 -b .arm
 %patch13 -p1 -b .tscan
+%patch14 -p1
 
 %build
 autoreconf -if
