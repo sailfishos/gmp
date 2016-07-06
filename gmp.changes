@@ -1,4 +1,4 @@
-* Thu Jun 16 2016 Pekka Vuorela <pekka.vuorela@jollamobile.com> - 4.3.2
+* Thu Jun 16 2016 Pekka Vuorela <pekka.vuorela@jollamobile.com> - 4.3.2-7
 - Remove AM_C_PROTOTYPES. Contributes to JB#35132
 
 * Tue Dec 10 2013 Carsten Munk <carsten.munk@jollamobile.com> - 4.3.2
