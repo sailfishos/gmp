@@ -66,7 +66,10 @@ fi
 mkdir base
 cd base
 ln -s ../configure .
-./configure --build=%{_build} --host=%{_host} \
+%ifarch %{ix86}
+export CFLAGS=$(echo $RPM_OPT_FLAGS | sed -e "s/-mtune=[^ ]*//g" | sed -e "s/-march=[^ ]*//g")" -march=i686"
+%endif
+./configure --enable-fat --build=%{_build} --host=%{_host} \
          --program-prefix=%{?_program_prefix} \
          --prefix=%{_prefix} \
          --exec-prefix=%{_exec_prefix} \
@@ -86,33 +89,6 @@ perl -pi -e 's|hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=\"-L\\\$li
 export LD_LIBRARY_PATH=`pwd`/.libs
 make CFLAGS="$RPM_OPT_FLAGS" %{?_smp_mflags}
 cd ..
-%ifarch %{ix86}
-mkdir build-sse2
-cd build-sse2
-ln -s ../configure .
-CFLAGS="%{optflags} -march=pentium4"
-./configure --build=%{_build} --host=%{_host} \
-         --program-prefix=%{?_program_prefix} \
-         --prefix=%{_prefix} \
-         --exec-prefix=%{_exec_prefix} \
-         --bindir=%{_bindir} \
-         --sbindir=%{_sbindir} \
-         --sysconfdir=%{_sysconfdir} \
-         --datadir=%{_datadir} \
-         --includedir=%{_includedir} \
-         --libdir=%{_libdir} \
-         --libexecdir=%{_libexecdir} \
-         --localstatedir=%{_localstatedir} \
-         --sharedstatedir=%{_sharedstatedir} \
-         --mandir=%{_mandir} \
-         --infodir=%{_infodir} \
-         --enable-mpbsd --enable-cxx
-perl -pi -e 's|hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=\"-L\\\$libdir\"|g;' libtool
-export LD_LIBRARY_PATH=`pwd`/.libs
-make %{?_smp_mflags}
-unset CFLAGS
-cd ..
-%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -126,18 +102,6 @@ rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 ln -sf libgmp.so.10 $RPM_BUILD_ROOT%{_libdir}/libgmp.so.3
 ln -sf libgmpxx.so.4 $RPM_BUILD_ROOT%{_libdir}/libgmpxx.so
 cd ..
-%ifarch %{ix86}
-cd build-sse2
-export LD_LIBRARY_PATH=`pwd`/.libs
-mkdir $RPM_BUILD_ROOT%{_libdir}/sse2
-install -m 755 .libs/libgmp.so.10.* $RPM_BUILD_ROOT%{_libdir}/sse2
-cp -a .libs/libgmp.so.10 $RPM_BUILD_ROOT%{_libdir}/sse2
-chmod 755 $RPM_BUILD_ROOT%{_libdir}/sse2/libgmp.so.10
-install -m 755 .libs/libgmpxx.so.4.* $RPM_BUILD_ROOT%{_libdir}/sse2
-cp -a .libs/libgmpxx.so.4 $RPM_BUILD_ROOT%{_libdir}/sse2
-chmod 755 $RPM_BUILD_ROOT%{_libdir}/sse2/libgmpxx.so.4
-cd ..
-%endif
 
 # Rename gmp.h to gmp-<arch>.h and gmp-mparam.h to gmp-mparam-<arch>.h to 
 # avoid file conflicts on multilib systems and install wrapper include files
@@ -173,12 +137,6 @@ export LD_LIBRARY_PATH=`pwd`/.libs
 make %{?_smp_mflags} check
 cd ..
 %endif
-%ifarch %{ix86}
-cd build-sse2
-export LD_LIBRARY_PATH=`pwd`/.libs
-make %{?_smp_mflags} check
-cd ..
-%endif
 
 %post -p /sbin/ldconfig
 
@@ -206,9 +164,6 @@ rm -rf $RPM_BUILD_ROOT
 %doc COPYING* NEWS README
 %{_libdir}/libgmp.so.*
 %{_libdir}/libgmpxx.so.*
-%ifarch %{ix86}
-%{_libdir}/sse2/*
-%endif
 
 %files devel
 %defattr(-,root,root,-)
