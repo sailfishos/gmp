@@ -5,21 +5,17 @@
 
 Summary: A GNU arbitrary precision library
 Name: gmp
-Version: 4.3.2
-Release: 7
+Version: 6.1.2
+Release: 1
 URL: http://gmplib.org/
 Source0: ftp://ftp.gnu.org/pub/gnu/gmp/gmp-%{version}.tar.bz2
 Source2: gmp.h
 Source3: gmp-mparam.h
-#Patch1: gmp-4.2.4-no-host-target-check.patch
 Patch11: gmp-4.1.4-noexecstack.patch
-Patch12: arm-binutils-hack.patch
-Patch13: tscan.patch
-Patch14: disable_am_c_prototypes.patch
-License: LGPLv3+
+License: LGPLv3+ or GPLv2+
 Group: System/Libraries
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf automake libtool
+Provides: libgmp.so.3
 
 %description
 The gmp package contains GNU MP, a library for arbitrary precision
@@ -59,11 +55,7 @@ in applications.
 
 %prep
 %setup -q 
-#%patch1 -p1 -b .no-host-target
 %patch11 -p1 -b .mips
-%patch12 -p1 -b .arm
-%patch13 -p1 -b .tscan
-%patch14 -p1
 
 %build
 autoreconf -if
@@ -74,7 +66,10 @@ fi
 mkdir base
 cd base
 ln -s ../configure .
-./configure --build=%{_build} --host=%{_host} \
+%ifarch %{ix86}
+export CFLAGS=$(echo $RPM_OPT_FLAGS | sed -e "s/-mtune=[^ ]*//g" | sed -e "s/-march=[^ ]*//g")" -march=i686"
+%endif
+./configure --enable-fat --build=%{_build} --host=%{_host} \
          --program-prefix=%{?_program_prefix} \
          --prefix=%{_prefix} \
          --exec-prefix=%{_exec_prefix} \
@@ -94,33 +89,6 @@ perl -pi -e 's|hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=\"-L\\\$li
 export LD_LIBRARY_PATH=`pwd`/.libs
 make CFLAGS="$RPM_OPT_FLAGS" %{?_smp_mflags}
 cd ..
-%ifarch %{ix86}
-mkdir build-sse2
-cd build-sse2
-ln -s ../configure .
-CFLAGS="%{optflags} -march=pentium4"
-./configure --build=%{_build} --host=%{_host} \
-         --program-prefix=%{?_program_prefix} \
-         --prefix=%{_prefix} \
-         --exec-prefix=%{_exec_prefix} \
-         --bindir=%{_bindir} \
-         --sbindir=%{_sbindir} \
-         --sysconfdir=%{_sysconfdir} \
-         --datadir=%{_datadir} \
-         --includedir=%{_includedir} \
-         --libdir=%{_libdir} \
-         --libexecdir=%{_libexecdir} \
-         --localstatedir=%{_localstatedir} \
-         --sharedstatedir=%{_sharedstatedir} \
-         --mandir=%{_mandir} \
-         --infodir=%{_infodir} \
-         --enable-mpbsd --enable-cxx
-perl -pi -e 's|hardcode_libdir_flag_spec=.*|hardcode_libdir_flag_spec=\"-L\\\$libdir\"|g;' libtool
-export LD_LIBRARY_PATH=`pwd`/.libs
-make %{?_smp_mflags}
-unset CFLAGS
-cd ..
-%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -131,23 +99,9 @@ install -m 644 gmp-mparam.h ${RPM_BUILD_ROOT}%{_includedir}
 rm -f $RPM_BUILD_ROOT%{_libdir}/lib{gmp,mp,gmpxx}.la
 rm -f $RPM_BUILD_ROOT%{_infodir}/dir
 /sbin/ldconfig -n $RPM_BUILD_ROOT%{_libdir}
+ln -sf libgmp.so.10 $RPM_BUILD_ROOT%{_libdir}/libgmp.so.3
 ln -sf libgmpxx.so.4 $RPM_BUILD_ROOT%{_libdir}/libgmpxx.so
 cd ..
-%ifarch %{ix86}
-cd build-sse2
-export LD_LIBRARY_PATH=`pwd`/.libs
-mkdir $RPM_BUILD_ROOT%{_libdir}/sse2
-install -m 755 .libs/libgmp.so.3.* $RPM_BUILD_ROOT%{_libdir}/sse2
-cp -a .libs/libgmp.so.3 $RPM_BUILD_ROOT%{_libdir}/sse2
-chmod 755 $RPM_BUILD_ROOT%{_libdir}/sse2/libgmp.so.3
-install -m 755 .libs/libgmpxx.so.4.* $RPM_BUILD_ROOT%{_libdir}/sse2
-cp -a .libs/libgmpxx.so.4 $RPM_BUILD_ROOT%{_libdir}/sse2
-chmod 755 $RPM_BUILD_ROOT%{_libdir}/sse2/libgmpxx.so.4
-install -m 755 .libs/libmp.so.3.* $RPM_BUILD_ROOT%{_libdir}/sse2
-cp -a .libs/libmp.so.3 $RPM_BUILD_ROOT%{_libdir}/sse2
-chmod 755 $RPM_BUILD_ROOT%{_libdir}/sse2/libmp.so.3
-cd ..
-%endif
 
 # Rename gmp.h to gmp-<arch>.h and gmp-mparam.h to gmp-mparam-<arch>.h to 
 # avoid file conflicts on multilib systems and install wrapper include files
@@ -177,14 +131,8 @@ install -m644 %{SOURCE3} %{buildroot}/%{_includedir}/gmp-mparam.h
 
 
 %check
-%ifnarch aarch64 ppc
+%if ! 0%{?qemu_user_space_build}
 cd base
-export LD_LIBRARY_PATH=`pwd`/.libs
-make %{?_smp_mflags} check
-cd ..
-%endif
-%ifarch %{ix86}
-cd build-sse2
 export LD_LIBRARY_PATH=`pwd`/.libs
 make %{?_smp_mflags} check
 cd ..
@@ -213,17 +161,12 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
-%doc COPYING COPYING.LIB NEWS README
+%doc COPYING* NEWS README
 %{_libdir}/libgmp.so.*
-%{_libdir}/libmp.so.*
 %{_libdir}/libgmpxx.so.*
-%ifarch %{ix86}
-%{_libdir}/sse2/*
-%endif
 
 %files devel
 %defattr(-,root,root,-)
-%{_libdir}/libmp.so
 %{_libdir}/libgmp.so
 %{_libdir}/libgmpxx.so
 %{_includedir}/*.h
@@ -231,7 +174,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files static
 %defattr(-,root,root,-)
-%{_libdir}/libmp.a
 %{_libdir}/libgmp.a
 %{_libdir}/libgmpxx.a
 

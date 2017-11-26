@@ -1,3 +1,6 @@
+* Tue Nov 21 2017 Raine Mäkeläinen <raine.makelainen@jolla.com> - 6.1.2
+- Update to 6.1.2. Contributes to JB#39820
+
 * Thu Jun 16 2016 Pekka Vuorela <pekka.vuorela@jollamobile.com> - 4.3.2-7
 - Remove AM_C_PROTOTYPES. Contributes to JB#35132
 
