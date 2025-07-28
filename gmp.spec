@@ -6,11 +6,12 @@
 Summary: A GNU arbitrary precision library
 Name: gmp
 Version: 6.3.0
-Release: 1
+Release: 2
 URL: http://gmplib.org/
 Source0: %{name}-%{version}.tar.xz
 Source2: gmp.h
 Source3: gmp-mparam.h
+Patch1: gmp-6.3.0-c23.patch
 Patch2: gmp-6.0.0-debuginfo.patch
 License: LGPLv3+ or GPLv2+
 BuildRequires: autoconf automake libtool
@@ -134,13 +135,11 @@ export LD_LIBRARY_PATH=`pwd`/.libs
 %postun -p /sbin/ldconfig
 
 %files
-%defattr(-,root,root,-)
 %doc COPYING* NEWS README
 %{_libdir}/libgmp.so.*
 %{_libdir}/libgmpxx.so.*
 
 %files devel
-%defattr(-,root,root,-)
 %{_libdir}/libgmp.so
 %{_libdir}/libgmpxx.so
 %{_libdir}/pkgconfig/gmp.pc
@@ -149,6 +148,5 @@ export LD_LIBRARY_PATH=`pwd`/.libs
 %{_infodir}/gmp.info*
 
 %files static
-%defattr(-,root,root,-)
 %{_libdir}/libgmp.a
 %{_libdir}/libgmpxx.a
