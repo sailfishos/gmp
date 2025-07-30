@@ -1,3 +1,6 @@
+* Mon Jul 28 2025 Matti Lehtimäki <matti.lehtimaki@jolla.com> - 6.3.0-2
+- Backport patch to fix build with gcc 15. JB#63045
+
 * Thu Aug 03 2023 Matti Lehtimäki <matti.lehtimaki@jolla.com> - 6.3.0
 - Update to 6.3.0. JB#61003
 
@@ -300,7 +303,7 @@ correctly identified as a 64 bit platform.
 * Wed Sep  2 1998 Michael Fulbright <msf@redhat.com>
 - looked over before inclusion in RH 5.2
 
-* Sat May 24 1998 Dick Porter <dick@cymru.net>
+* Sun May 24 1998 Dick Porter <dick@cymru.net>
 - Patch Makefile.in, not Makefile
 - Don't specify i586, let configure decide the arch
 
